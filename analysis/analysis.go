@@ -7,10 +7,9 @@ import (
 	"golang.org/x/tools/go/callgraph"
 	"golang.org/x/tools/go/callgraph/cha"
 	"golang.org/x/tools/go/callgraph/rta"
-	"golang.org/x/tools/go/pointer"
-
 	"golang.org/x/tools/go/callgraph/static"
 	"golang.org/x/tools/go/packages"
+	"golang.org/x/tools/go/pointer"
 	"golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
 	"log"
@@ -44,8 +43,8 @@ const (
 
 func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string) (*ProgramAnalysis, error) {
 	conf := &packages.Config{
-		Mode:  pkgLoadMode,
-		Tests: withTests,
+		Mode:       pkgLoadMode,
+		Tests:      withTests,
 		BuildFlags: buildFlags,
 	}
 	loaded, err := packages.Load(conf, pkgPatterns...)

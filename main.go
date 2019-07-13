@@ -36,7 +36,6 @@ func main() {
 	cytoGraph := render.NewCytoGraph()
 
 	opts := &render.RenderOptions{
-		IgnoredPkgs: []string{}, // TODO flag
 		IncludeGoRoot: false, // TODO flag
 		IncludeUnexported: false, // TODO flag
 	}

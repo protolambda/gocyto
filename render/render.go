@@ -12,7 +12,6 @@ import (
 )
 
 type RenderOptions struct {
-	IgnoredPkgs       []string
 	IncludeGoRoot     bool
 	IncludeUnexported bool
 }
