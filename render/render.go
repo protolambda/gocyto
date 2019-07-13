@@ -73,7 +73,7 @@ func NewCytoGraph() *CytoGraph {
 
 func (cg *CytoGraph) GetID(fullName string, isNode bool) (isNew bool, id CytoID) {
 	if id, ok := cg.idMap[fullName]; ok {
-		return true, id
+		return false, id
 	} else {
 		cg.idCounter++
 		id := "e"
@@ -83,7 +83,7 @@ func (cg *CytoGraph) GetID(fullName string, isNode bool) (isNew bool, id CytoID)
 		id += strconv.FormatUint(cg.idCounter, 16)
 		cID := CytoID(id)
 		cg.idMap[fullName] = cID
-		return false, cID
+		return true, cID
 	}
 }
 
@@ -106,7 +106,7 @@ func (cg *CytoGraph) ProcessNode(node *Node) CytoID {
 	cNode.Parent = cg.ProcessPkg(node.Func.Pkg.Pkg)
 
 	if last := strings.LastIndex(funcName, "."); last >= 0 {
-		cNode.Label = funcName[last:0]
+		cNode.Label = funcName[last:]
 	} else {
 		cNode.Label = funcName
 	}

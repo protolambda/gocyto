@@ -51,20 +51,11 @@ func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string) (*Pr
 	if err != nil {
 		log.Fatalln("failed packages load:", err)
 	}
-
-	// TODO: maybe just depend on pattern match covering all desired packages?
-	// add imported packages
-	for i, end := 0, len(loaded); i < end; i++ {
-		p := loaded[i]
-		for _, imp := range p.Imports {
-			loaded = append(loaded, imp)
-		}
-	}
 	prog, initialPkgs := ssautil.Packages(loaded, 0)
 
 	var errorMsg bytes.Buffer
 	for i, p := range initialPkgs {
-		if p == nil {
+		if p == nil && loaded[i].Name != "" {
 			errorMsg.WriteString("failed to get SSA for pkg: ")
 			errorMsg.WriteString(loaded[i].PkgPath)
 			errorMsg.WriteString("\n")
