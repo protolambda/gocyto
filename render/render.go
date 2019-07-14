@@ -40,19 +40,27 @@ func isGlobal(node *Node) bool {
 
 type CytoID string
 
+type NodeData struct {
+	Id          CytoID  `json:"id"`
+	Label       string  `json:"label"`
+	Description *string `json:"description,omitempty"` // optional description
+	Parent      CytoID  `json:"parent"`
+}
+
 type CytoNode struct {
-	Id          CytoID
-	Label       string
-	Description *string // optional description
-	Parent      CytoID
-	Classes     []string
+	Data NodeData `json:"data"`
+	Classes     []string `json:"classes"`
+}
+
+type EdgeData struct {
+	Id      CytoID `json:"id"`
+	Source  CytoID `json:"source"`
+	Target  CytoID `json:"target"`
 }
 
 type CytoEdge struct {
-	Id      CytoID
-	Source  CytoID
-	Target  CytoID
-	Classes []string
+	Data EdgeData `json:"data"`
+	Classes []string `json:"classes"`
 }
 
 type CytoGraph struct {
@@ -101,19 +109,19 @@ func (cg *CytoGraph) ProcessNode(node *Node) CytoID {
 	}
 
 	// node does not exist, create one, with the new id.
-	cNode := &CytoNode{Id: id}
+	cNode := &CytoNode{Data: NodeData{Id: id}}
 
-	cNode.Parent = cg.ProcessPkg(node.Func.Pkg.Pkg)
+	cNode.Data.Parent = cg.ProcessPkg(node.Func.Pkg.Pkg)
 
 	if last := strings.LastIndex(funcName, "."); last >= 0 {
-		cNode.Label = funcName[last:]
+		cNode.Data.Label = funcName[last:]
 	} else {
-		cNode.Label = funcName
+		cNode.Data.Label = funcName
 	}
 
 	// if it is attached to a type, overwrite the parent node. (type will have package as parent in turn)
 	if recv := node.Func.Signature.Recv(); recv != nil {
-		cNode.Parent = cg.ProcessRecv(recv)
+		cNode.Data.Parent = cg.ProcessRecv(recv)
 	}
 
 	if inGoRoot(node) {
@@ -133,7 +141,7 @@ func (cg *CytoGraph) ProcessNode(node *Node) CytoID {
 
 func (cg *CytoGraph) ProcessRecv(recv *types.Var) CytoID {
 	pkg := recv.Pkg()
-	fullName := fmt.Sprintf("recv ~ %s ~ %s", pkg.Path(), recv.Name())
+	fullName := fmt.Sprintf("recv ~ %s ~ %s", pkg.Path(), recv.Type().String())
 	isNew, id := cg.GetID(fullName, true)
 	// just return ID directly if the node already exits
 	if !isNew {
@@ -142,10 +150,20 @@ func (cg *CytoGraph) ProcessRecv(recv *types.Var) CytoID {
 
 	// node does not exist, create one, with the new id.
 	cNode := &CytoNode{
-		Id:     id,
-		Parent: cg.ProcessPkg(recv.Pkg()),
-		Label:  recv.Name(),
+		Data: NodeData{
+			Id:     id,
+			Parent: cg.ProcessPkg(recv.Pkg()),
+			Label:  recv.Type().String(),
+		},
 	}
+
+	// strip package name from type
+	if last := strings.LastIndex(cNode.Data.Label, "."); last >= 0 {
+		cNode.Data.Label = cNode.Data.Label[last+1:]
+	}
+
+	cNode.Classes = append(cNode.Classes, "type")
+
 	if recv.Embedded() {
 		cNode.Classes = append(cNode.Classes, "embedded")
 	}
@@ -153,7 +171,7 @@ func (cg *CytoGraph) ProcessRecv(recv *types.Var) CytoID {
 		cNode.Classes = append(cNode.Classes, "field")
 	}
 	if !recv.Exported() {
-		cNode.Classes = append(cNode.Classes, "unexported")
+		cNode.Classes = append(cNode.Classes, "unexported2") // TODO
 	}
 
 	cg.Nodes[id] = cNode
@@ -171,9 +189,11 @@ func (cg *CytoGraph) ProcessPkg(pkg *types.Package) CytoID {
 	// node does not exist, create one, with the new id.
 	path := pkg.Path()
 	cNode := &CytoNode{
-		Id:          id,
-		Label:       pkg.Name(),
-		Description: &path,
+		Data: NodeData{
+			Id:          id,
+			Label:       pkg.Name(),
+			Description: &path,
+		},
 		Classes:     []string{"package"},
 	}
 	cg.Nodes[id] = cNode
@@ -194,9 +214,11 @@ func (cg *CytoGraph) ProcessEdge(edge *Edge) CytoID {
 	idCallee := cg.ProcessNode(edge.Callee)
 
 	cEdge := &CytoEdge{
-		Id:     id,
-		Source: idCaller,
-		Target: idCallee,
+		Data: EdgeData{
+			Id:     id,
+			Source: idCaller,
+			Target: idCallee,
+		},
 		// description precisely says what kind of edge this is, e.g. "concurrent static function closure call"
 		Classes: strings.Split(edge.Description(), " "),
 	}
@@ -227,8 +249,8 @@ func (cg *CytoGraph) LoadCallGraph(g *Graph, opts *RenderOptions) error {
 }
 
 type CytoJsonOut struct {
-	Nodes []*CytoNode
-	Edges []*CytoEdge
+	Nodes []*CytoNode `json:"nodes"`
+	Edges []*CytoEdge `json:"edges"`
 }
 
 func (cg *CytoGraph) WriteJson(w io.Writer) error {

@@ -77,7 +77,7 @@ func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string) (*Pr
 	}, nil
 }
 
-func (mode AnalysisMode) LoadCallgraph(data *ProgramAnalysis) *callgraph.Graph {
+func (mode AnalysisMode) ComputeCallgraph(data *ProgramAnalysis) *callgraph.Graph {
 	switch mode {
 	case PointerAnalysis:
 		ptrcfg := &pointer.Config{

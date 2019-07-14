@@ -35,7 +35,7 @@ program, err := analysis.RunAnalysis(withTests, buildFlags, packagePatterns)
 Constructing a callgraph:
 
 ```go
-analysis.PointerAnalysis.LoadCallgraph(program)
+analysis.PointerAnalysis.ComputeCallgraph(program)
 ```
 
 ### Supported callgraph analysis types:

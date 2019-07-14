@@ -12,5 +12,5 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-experiments
+out.html
 
