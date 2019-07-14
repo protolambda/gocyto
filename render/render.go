@@ -3,9 +3,11 @@ package render
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lucasb-eyer/go-colorful"
 	"go/build"
 	"go/types"
 	. "golang.org/x/tools/go/callgraph"
+	"hash/fnv"
 	"io"
 	"strconv"
 	"strings"
@@ -45,21 +47,22 @@ type NodeData struct {
 	Label       string  `json:"label"`
 	Description *string `json:"description,omitempty"` // optional description
 	Parent      CytoID  `json:"parent"`
+	Color       string  `json:"color"`
 }
 
 type CytoNode struct {
-	Data NodeData `json:"data"`
-	Classes     []string `json:"classes"`
+	Data    NodeData `json:"data"`
+	Classes []string `json:"classes"`
 }
 
 type EdgeData struct {
-	Id      CytoID `json:"id"`
-	Source  CytoID `json:"source"`
-	Target  CytoID `json:"target"`
+	Id     CytoID `json:"id"`
+	Source CytoID `json:"source"`
+	Target CytoID `json:"target"`
 }
 
 type CytoEdge struct {
-	Data EdgeData `json:"data"`
+	Data    EdgeData `json:"data"`
 	Classes []string `json:"classes"`
 }
 
@@ -99,6 +102,47 @@ func nodeFullName(node *Node) string {
 	return node.Func.RelString(node.Func.Pkg.Pkg)
 }
 
+func stringToIntHash(v string) uint32 {
+	hasher := fnv.New32()
+	_, _ = hasher.Write([]byte(v))
+	return hasher.Sum32()
+}
+
+func tupleToIntHashes(tup *types.Tuple) []uint32 {
+	var res []uint32
+	count := tup.Len()
+
+	for i := 0; i < count; i++ {
+		p := tup.At(i)
+		res = append(res, stringToIntHash(p.Type().String()))
+	}
+	return res
+}
+
+var defaultColor = MustParseHex("#3D4CC4")
+
+func integersToColor(values ...uint32) colorful.Color {
+	if len(values) == 0 {
+		return defaultColor
+	}
+	mix := colorful.Color{R: 0.0, G: 0.0, B: 0.0}
+	for _, p := range values {
+		c := keypoints.GetInterpolatedColorFor(float64(p) / float64(^uint32(0)))
+		t := float64(1.0) / float64(len(values))
+		if t == 1.0 {
+			return c
+		}
+		mix = c.BlendHcl(mix, 0.3)
+	}
+	return mix
+}
+
+func signatureToColorHex(signature *types.Signature) string {
+	params := integersToColor(tupleToIntHashes(signature.Params())...)
+	results := integersToColor(tupleToIntHashes(signature.Results())...)
+	return params.BlendHcl(results, 0.5).Hex()
+}
+
 func (cg *CytoGraph) ProcessNode(node *Node) CytoID {
 	funcName := nodeFullName(node)
 	fullName := fmt.Sprintf("func ~ %s", funcName)
@@ -118,6 +162,8 @@ func (cg *CytoGraph) ProcessNode(node *Node) CytoID {
 	} else {
 		cNode.Data.Label = funcName
 	}
+
+	cNode.Data.Color = signatureToColorHex(node.Func.Signature)
 
 	// if it is attached to a type, overwrite the parent node. (type will have package as parent in turn)
 	if recv := node.Func.Signature.Recv(); recv != nil {
@@ -157,6 +203,8 @@ func (cg *CytoGraph) ProcessRecv(recv *types.Var) CytoID {
 		},
 	}
 
+	cNode.Data.Color = integersToColor(stringToIntHash(cNode.Data.Label)).Hex()
+
 	// strip package name from type
 	if last := strings.LastIndex(cNode.Data.Label, "."); last >= 0 {
 		cNode.Data.Label = cNode.Data.Label[last+1:]
@@ -194,8 +242,9 @@ func (cg *CytoGraph) ProcessPkg(pkg *types.Package) CytoID {
 			Label:       pkg.Name(),
 			Description: &path,
 		},
-		Classes:     []string{"package"},
+		Classes: []string{"package"},
 	}
+	cNode.Data.Color = integersToColor(stringToIntHash(cNode.Data.Label)).Hex()
 	cg.Nodes[id] = cNode
 	return id
 }

@@ -39,8 +39,7 @@ Options:
 `
 
 type WebData struct {
-	Title string
-	Packages string
+	Packages  string
 	GraphJSON template.JS
 }
 
@@ -106,8 +105,7 @@ func main() {
 		check(
 			tmpl.Execute(w,
 				WebData{
-					Title: "todo",
-					Packages: pkgListText.String(),
+					Packages:  pkgListText.String(),
 					GraphJSON: template.JS(buf.String()),
 				}),
 			"could not write index.html to output: %v")

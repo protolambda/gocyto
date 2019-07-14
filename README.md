@@ -4,14 +4,19 @@ A Go [SSA](https://godoc.org/golang.org/x/tools/go/ssa) callgraph builder and vi
 
 Features:
 - output to generic Cytoscape JSON format. (list of nodes, list of edges)
+- output to a single html file, with js dependencies in unpkg, and graph data embedded.
+- outputs can be written to program output, or to a file.
 - use different [SSA analysis types](#supported-callgraph-analysis-types)
 - support for Go-modules (powered by `golang.org/x/tools/go/packages`)
 - graph data is nested: packages > types / globals > attached functions
+- nodes are colored based on signature (50% parameters blend, 50% results blend%)
 - all edges/nodes enhanced with `classes` to style/filter the graph with
 
-**Work in progress.**
+```
+go get github.com/protolambda/gocyto
+```
 
-## executable
+## Usage
 
 Provide a Go package pattern to load the packages, and produce the call-graph.
 
@@ -19,7 +24,29 @@ Provide a Go package pattern to load the packages, and produce the call-graph.
 gocyto github.com/user/project/some/package/...
 ```
 
-TODO; tests flag, and analysis type switch
+### options
+
+```
+gocyto [options...] <package path(s)>
+
+Options:
+
+  -build string
+    	Build flags to pass to Go build tool. Separated with spaces
+  -go-root
+    	Include packages part of the Go root
+  -mode string
+    	Type of analysis to run. One of: pointer, cha, rta, static (default "pointer")
+  -out string
+    	Output file, if none is specified, output to std out
+  -tests
+    	Consider tests files as entry points for call-graph
+  -unexported
+    	Include unexported function calls
+  -web
+    	Output an index.html with graph data embedded instead of raw JSON
+```
+
 
 
 ## `gocyto/analysis`
