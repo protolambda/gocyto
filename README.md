@@ -9,7 +9,7 @@ Features:
 - use different [SSA analysis types](#supported-callgraph-analysis-types)
 - support for Go-modules (powered by `golang.org/x/tools/go/packages`)
 - graph data is nested: packages > types / globals > attached functions
-- nodes are colored based on signature (50% parameters blend, 50% results blend%)
+- nodes are colored based on signature (50% parameters blend, 50% results blend)
 - all edges/nodes enhanced with `classes` to style/filter the graph with
 
 ```
@@ -125,7 +125,7 @@ err := cytoGraph.LoadCallGraph(callGraph, opts)
 - doesn't add extra information (description/classes) to the calls
 - supports same set of analysis algorithms
 
-[`godoc/analysis](https://godoc.org/golang.org/x/tools/godoc/analysis)
+[`godoc/analysis`](https://godoc.org/golang.org/x/tools/godoc/analysis)
 - different visualization; go-doc complement, tree-view/code navigation
 - Powers [call-graph navigation](https://golang.org/lib/godoc/analysis/help.html)
 
