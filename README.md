@@ -16,6 +16,13 @@ Features:
 go get github.com/protolambda/gocyto
 ```
 
+## Example output
+
+This is the web output of the callgraph of Gocyto, including unexported functions:
+
+![Callgraph of gocyto itself](./callgraph.png)
+
+
 ## Usage
 
 Provide a Go package pattern to load the packages, and produce the call-graph.
