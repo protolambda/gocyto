@@ -53,7 +53,10 @@ func main() {
 		os.Exit(2)
 	}
 
-	buildFlags := strings.Split(*buildFlag, " ")
+	var buildFlags []string
+	if len(*buildFlag) > 0 {
+		buildFlags = strings.Split(*buildFlag, " ")
+	}
 
 	var mode analysis.AnalysisMode
 	switch *modeFlag {
