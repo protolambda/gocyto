@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	"golang.org/x/tools/go/callgraph"
 	"golang.org/x/tools/go/callgraph/cha"
 	"golang.org/x/tools/go/callgraph/rta"
@@ -12,7 +13,6 @@ import (
 	"golang.org/x/tools/go/pointer"
 	"golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
-	"log"
 )
 
 type ProgramAnalysis struct {
@@ -49,7 +49,7 @@ func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string) (*Pr
 	}
 	loaded, err := packages.Load(conf, pkgPatterns...)
 	if err != nil {
-		log.Fatalln("failed packages load:", err)
+		return nil, fmt.Errorf("failed packages load: %w", err)
 	}
 	prog, initialPkgs := ssautil.Packages(loaded, 0)
 
