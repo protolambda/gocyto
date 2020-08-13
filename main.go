@@ -55,11 +55,8 @@ func main() {
 	}
 
 	var buildFlags []string
-	for _, f := range strings.Split(*buildFlag, " ") {
-		f = strings.TrimSpace(f)
-		if f != "" {
-			buildFlags = append(buildFlags, f)
-		}
+	if len(*buildFlag) > 0 {
+		buildFlags = strings.Split(*buildFlag, " ")
 	}
 
 	var mode analysis.AnalysisMode

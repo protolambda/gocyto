@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	"golang.org/x/tools/go/callgraph"
 	"golang.org/x/tools/go/callgraph/cha"
 	"golang.org/x/tools/go/callgraph/rta"
@@ -51,7 +52,7 @@ func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string, quer
 	pkgPatterns = append(pkgPatterns)
 	loaded, err := packages.Load(conf, pkgPatterns...)
 	if err != nil {
-		return nil, fmt.Errorf("failed packages load: %v", err)
+		return nil, fmt.Errorf("failed packages load: %w", err)
 	}
 	prog, initialPkgs := ssautil.Packages(loaded, 0)
 
