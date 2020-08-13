@@ -27,7 +27,7 @@ var (
 )
 
 const usage = `
-Gocyto: Callgraph analysis and visualization for Go. - build by @protolambda
+Gocyto: Callgraph analysis and visualization for Go - by @protolambda
 
 https://github.com/protolambda/gocyto
 
@@ -54,7 +54,13 @@ func main() {
 		os.Exit(2)
 	}
 
-	buildFlags := strings.Split(*buildFlag, " ")
+	var buildFlags []string
+	for _, f := range strings.Split(*buildFlag, " ") {
+		f = strings.TrimSpace(f)
+		if f != "" {
+			buildFlags = append(buildFlags, f)
+		}
+	}
 
 	var mode analysis.AnalysisMode
 	switch *modeFlag {
