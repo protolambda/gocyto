@@ -30,7 +30,8 @@ const pkgLoadMode = packages.NeedName |
 	packages.NeedTypes |
 	packages.NeedSyntax |
 	packages.NeedTypesInfo |
-	packages.NeedTypesSizes
+	packages.NeedTypesSizes |
+	packages.NeedModule
 
 type AnalysisMode uint64
 
@@ -41,11 +42,12 @@ const (
 	RapidTypeAnalysis
 )
 
-func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string) (*ProgramAnalysis, error) {
+func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string, queryDir string) (*ProgramAnalysis, error) {
 	conf := &packages.Config{
 		Mode:       pkgLoadMode,
 		Tests:      withTests,
 		BuildFlags: buildFlags,
+		Dir:        queryDir,
 	}
 	loaded, err := packages.Load(conf, pkgPatterns...)
 	if err != nil {

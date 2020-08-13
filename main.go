@@ -20,6 +20,7 @@ var (
 	testFlag       = flag.Bool("tests", false, "Consider tests files as entry points for call-graph")
 	goRootFlag     = flag.Bool("go-root", false, "Include packages part of the Go root")
 	unexportedFlag = flag.Bool("unexported", false, "Include unexported function calls")
+	queryDir       = flag.String("query-dir", "", "Directory to query from for go packages. Current dir if empty")
 	modeFlag       = flag.String("mode", "pointer", "Type of analysis to run. One of: pointer, cha, rta, static")
 	buildFlag      = flag.String("build", "", "Build flags to pass to Go build tool. Separated with spaces")
 	outFlag        = flag.String("out", "", "Output file, if none is specified, output to std out")
@@ -76,7 +77,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	aProg, err := analysis.RunAnalysis(*testFlag, buildFlags, args)
+	aProg, err := analysis.RunAnalysis(*testFlag, buildFlags, args, *queryDir)
 	check(err, "could not run program analysis: %v")
 
 	callGraph := mode.ComputeCallgraph(aProg)
