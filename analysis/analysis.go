@@ -12,7 +12,6 @@ import (
 	"golang.org/x/tools/go/pointer"
 	"golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
-	"log"
 )
 
 type ProgramAnalysis struct {
@@ -49,9 +48,10 @@ func RunAnalysis(withTests bool, buildFlags []string, pkgPatterns []string, quer
 		BuildFlags: buildFlags,
 		Dir:        queryDir,
 	}
+	pkgPatterns = append(pkgPatterns)
 	loaded, err := packages.Load(conf, pkgPatterns...)
 	if err != nil {
-		log.Fatalln("failed packages load:", err)
+		return nil, fmt.Errorf("failed packages load: %v", err)
 	}
 	prog, initialPkgs := ssautil.Packages(loaded, 0)
 
