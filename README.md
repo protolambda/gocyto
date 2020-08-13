@@ -28,7 +28,8 @@ This is the web output of the callgraph of Gocyto, including unexported function
 Provide a Go package pattern to load the packages, and produce the call-graph.
 
 ```bash
-gocyto github.com/user/project/some/package/...
+# From the directory containing `index.gohtml` for templating
+gocyto --out prysm_out.html --query-dir ../prysm/beacon-chain --web github.com/prysmaticlabs/prysm/beacon-chain/...
 ```
 
 ### options
@@ -39,19 +40,21 @@ gocyto [options...] <package path(s)>
 Options:
 
   -build string
-    	Build flags to pass to Go build tool. Separated with spaces
+        Build flags to pass to Go build tool. Separated with spaces
   -go-root
-    	Include packages part of the Go root
+        Include packages part of the Go root
   -mode string
-    	Type of analysis to run. One of: pointer, cha, rta, static (default "pointer")
+        Type of analysis to run. One of: pointer, cha, rta, static (default "pointer")
   -out string
-    	Output file, if none is specified, output to std out
+        Output file, if none is specified, output to std out
+  -query-dir string
+        Directory to query from for go packages. Current dir if empty
   -tests
-    	Consider tests files as entry points for call-graph
+        Consider tests files as entry points for call-graph
   -unexported
-    	Include unexported function calls
+        Include unexported function calls
   -web
-    	Output an index.html with graph data embedded instead of raw JSON
+        Output an index.html with graph data embedded instead of raw JSON
 ```
 
 
